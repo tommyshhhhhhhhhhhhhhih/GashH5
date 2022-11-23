@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GASH 紀錄</title>
+		<link rel="icon" type="image/png" href="images/favicon.png">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content records" id="app">
+				<div class="container-fluid animated fadeIn position-fixed">
+					<div class="tab-menu">
+						<template v-for="item in chipsList">
+							<div class="tab-menu-item" :class="item.value == activeTab? 'active': ''" @click="activeTab = item.value">{{ item.label }}</div>
+						</template>
+					</div>
+				</div>
+				<div class="container animated fadeIn position-fixed-use">
+				<!-- 空版 DOM -->
+					<!-- <div class="nothing-board">
+						<img src="./images/icon/ic-records.svg" alt="">
+						<p class="caption2-M">沒有任何紀錄</p>
+					</div> -->
+					<template v-for="item,idx in recordList">
+						<div class="list-card-info" :class="tabListControl(item.category)" data-type="history"> 
+							<h4 class="Body2 list-card-title w-7">{{item.title}}</h4>
+							<p class="value list-card-title w-3">{{item.value}}</p>
+							<div class="number" :class="item.copied? 'active': '' ">
+								訂單號：
+								<input class="input w-7" type="text" :id="'code' + idx" readonly :value="item.code">
+								<button class="btn-copy" @click="copyPin(idx)">
+									<span class="animated fadeIn" v-show="item.copied">複製成功</span>
+									<img class="animated fadeIn" src="./images/icon/ic-copy-dark.svg" alt="" v-if="!item.copied">
+									<template v-else>
+										<img class="animated fadeIn" src="./images/icon/ic-copy-primary.svg" alt="">
+									</template>
+								</button>
+							</div>
+							<time class="w-7">{{item.time}}</time>
+							<p class="state w-3">成功</p>
+						</div>
+					</template>
+				</div> 
+				<!-- 往上滑的時候會加載更多樣式 -->
+				<div v-show="!btnloading" class="btn-loading list-bottom" id="dot-loading" v-show="btnloading"></div>
+				<!--  gotop -->
+				<div id="gotop"></div>
+			</div>
+		</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="js/lottie.min.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+        	};
+			var vm = new Vue({
+				el: '#app',
+				data() {
+					return {
+						// loading: true,
+						btnloading: false,
+						// loadingTimer: 2000,
+						activeTab: 'all',
+						chipsList: [
+							{label: '全部', value: 'all'},
+							{label: '扣點', value: 'minus'},
+							{label: '儲值', value: 'plus'},
+						],
+						recordList: [
+							{
+								title:'扣點(調退)', 
+								value:'2000',
+								code: 'CP302329429438491',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'minus',
+								stock: true,
+							},
+							{
+								title:'扣點',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								time:'2021/1/21 09:30:36',
+								category: 'minus',
+								stock: true,
+							},
+							{
+								title:'儲值(免費點數)', 
+								value:'500',
+								code: 'CP302329429438493',
+								copied: false,
+								time:'2021/1/21 09:30:36',  
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'扣點(背包交換)', 
+								value:'200',
+								code: 'CP302329429438494',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'minus',
+								stock: false,
+							},{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+							{
+								title:'儲值(beanfun!活動)', 
+								value:'1000',
+								code: 'CP302329429438495',
+								copied: false,
+								time:'2021/1/21 09:30:36', 
+								category: 'plus',
+								stock: true,
+							},
+						],
+					}
+				},
+				watch: {
+					activeTab: function() {
+						this.tabListControl
+					},
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						//- vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+					})
+				},
+				methods: {
+					tabListControl: function(val) {
+						if (this.activeTab !== 'all') {
+							if (val !== this.activeTab) {
+								return 'hide'
+							}
+						}
+					},
+					copyPin: function(idx) {
+						let inputID = '#code' + idx ;
+						$(inputID).select();
+						document.execCommand('copy');
+						this.recordList[idx].copied = true
+						window.setTimeout(function(){
+							vm.recordList[idx].copied = false
+						}, 2000);
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							// $.fancybox.open( $('#exchangeSuccess'), {
+							//     touch: false
+							// });
+							vm.btnloading = false;
+						}, 3000);
+                	}
+				},
+				updated: function () {
+					// this.$nextTick(function () {
+					// 	jQfn()
+					// })
+				}
+			});
+
+			$(function() {
+				$('#gotop').click(function(){
+					$('html,body').animate({ scrollTop: 0 }, 'slow');
+					return false;
+				});
+				$(window).scroll(function() {
+					if ( $(this).scrollTop() > 1624){
+						$('#gotop').fadeIn();
+					} else {
+						$('#gotop').fadeOut();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

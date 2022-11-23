@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>點數</title>
+		<link rel="icon" type="image/png" href="images/favicon.png">
+		<link href="css/jquery.fancybox.min.css" rel="stylesheet">
+		<link href="css/swiper-bundle.min.css" rel="stylesheet">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content records" id="app">
+				<div class="container-fluid animated fadeIn position-fixed">
+					<div class="tab-menu">
+						<a class="tab-menu-item" v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">虛寶兌換</a>
+						<a class="tab-menu-item" v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">BitCash</a>
+					</div>
+				</div>
+				<div class="container animated fadeIn position-fixed-use">
+					<!-- 空版 DOM -->
+					<!-- <div class="nothing-board">
+						<img src="./images/icon/ic-records.svg" alt="">
+						<p class="caption2-M">沒有任何紀錄</p>
+					</div> -->
+					<!-- 虛寶兌換 -->
+					<template v-for="item,idx in virtualList">
+						<div v-if="activetab ==='1'" class="list-card-info exchange">
+							<h4 class="Body2 list-card-title">{{item.title}}</h4>
+							<p class="value list-card-title">{{item.value}}</p>
+							<div class="number" :class="item.copied? 'active': '' ">
+								序號：
+								<input class="input w-7" type="text" :id="'code' + idx" readonly :value="item.code">
+								<button class="btn-copy" @click="copyPin1(idx)">
+									<span class="animated fadeIn" v-show="item.copied">複製成功</span>
+									<img class="animated fadeIn" src="./images/icon/ic-copy-dark.svg" alt="" v-if="!item.copied">
+									<template v-else>
+										<img class="animated fadeIn" src="./images/icon/ic-copy-primary.svg" alt="">
+									</template>
+								</button>
+							</div>
+							<time class="w-7">兌換日期：{{item.exchangeTime}}</time>
+							<time class="w-7">使用效期：{{item.usageTime}}</time>
+							<p class="state w-3">成功</p>
+						</div>
+					</template>
+					<!-- BitCash -->
+					<template v-for="item,idx in bitcashList">
+						<div v-if="activetab ==='2'" class="list-card-info exchange bitcash">
+							<h4 class="Body2 list-card-title">{{item.title}}</h4>
+							<p class="value list-card-title">{{item.value}}</p>
+							<div class="number" :class="item.copied? 'active': '' ">
+								序號：
+								<input class="input w-7" type="text" :id="'code' + idx" readonly :value="item.code">
+								<button class="btn-copy" @click="copyPin2(idx)">
+									<span class="animated fadeIn" v-show="item.copied">複製成功</span>
+									<img class="animated fadeIn" src="./images/icon/ic-copy-dark.svg" alt="" v-if="!item.copied">
+									<template v-else>
+										<img class="animated fadeIn" src="./images/icon/ic-copy-primary.svg" alt="">
+									</template>
+								</button>
+							</div>
+							<p class="note">扣除 GASH 點數 316 點</p>
+							<time class="w-7">兌換日期：{{item.exchangeTime}}</time>
+							<time class="w-7">使用效期：{{item.usageTime}}</time>
+							<p class="state w-3">成功</p>
+							<div class="tool">
+								<button class="del" data-fancybox data-src="#bitcash-del"></button>
+								<a href="https://bitcash.jp/pin/tri?act=merge&screenType=E1PU9MV1" target="_blank" class="link-outer balance">餘額合併</a>
+								<a href="https://bitcash.jp/docs_jp/tri?act=cmn/guide/lang/zh-TW/index&sv=1&_lh" target="_blank" class="link-outer btn">立即使用</a>
+							</div>
+						</div>
+					</template>
+				</div>
+				<!-- 往上滑的時候會加載更多樣式 -->
+				<div v-show="!btnloading" class="btn-loading list-bottom" id="dot-loading" v-show="btnloading"></div>
+				<!-- 刪除成功訊息  -->
+				<div class="error-message" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-confirm.svg" alt=""></span>
+					<p>刪除成功</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div>
+				<!--  刪除 popup-->
+				<div class="dialog exchange" id="bitcash-del" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="Title mb-lg">確認刪除</div>
+						<img src="./images/icon/ic-warning.svg" alt="">
+						<p class="Subhead2-M t-c">請小心操作，刪除序號後會在紀錄中消失</p>
+						<div class="popup-btn">
+							<button class="btn-primary mt-none mb-xxs block" @click="exchange2" > 
+								<div class="btn-loading" id="dot-loading2" v-show="btnloading"></div>
+								<span v-show="!btnloading">確定</span>
+								<!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+							</button>
+							<button class="btn-primary block cancel" onclick="$.fancybox.close();">取消</button>
+						</div>
+					</div>
+				</div>
+				<!--  gotop -->
+				<div id="gotop"></div>
+			</div>
+		</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="js/jquery.fancybox.min.js"></script>
+		<script src="js/swiper-bundle.min.js"></script>
+		<script src="js/custom.js"></script>
+		<script src="js/lottie.min.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+        	}
+			var jQfn2 = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading2'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			var vm = new Vue({
+				el: '#app',
+				data() {
+					return {
+						btnloading: false,
+						show: true,
+						activetab: '1',
+						// loading: true,
+						// loadingTimer: 2000,
+						virtualList: [
+							{
+								title:'天堂M', 
+								value:'4,013',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'天堂M',
+								value:'500',
+								code: 'CP302329429438491',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+						],
+						bitcashList: [
+							{
+								title:'儲值', 
+								value:'4,013',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+							{
+								title:'儲值',
+								value:'500',
+								code: 'CP302329429438492',
+								copied: false,
+								exchangeTime:'2021/1/21 09:30:36',
+								usageTime:'2021/1/21 09:30:36', 
+								category: 'virtual',
+								stock: true,
+							},
+						],
+					}
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						//- vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+						jQfn2()
+					})
+					setTimeout(() => {
+						document.getElementById("error-message").style.display="none";
+					}, 5000);
+				},
+				methods: {
+					copyPin1: function(idx) {
+						let inputID = '#code' + idx ;
+						$(inputID).select();
+						document.execCommand('copy');
+						this.virtualList[idx].copied = true
+						window.setTimeout(function(){
+							vm.virtualList[idx].copied = false
+						}, 2000);
+					},
+					copyPin2: function(idx) {
+						let inputID = '#code' + idx ;
+						$(inputID).select();
+						document.execCommand('copy');
+						this.bitcashList[idx].copied = true
+						window.setTimeout(function(){
+							vm.bitcashList[idx].copied = false
+						}, 2000);
+					},
+					errorHide: function () {
+						this.show = false;
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							vm.btnloading = false;
+						}, 3000);
+                	},
+					exchange2: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							$.fancybox.close( $('#bitcash-del'), {
+							    touch: false
+							});
+							vm.btnloading = false;
+						}, 3000);
+                	},
+				},
+			});
+
+			$(function() {
+				$('#gotop').click(function(){
+					$('html,body').animate({ scrollTop: 0 }, 'slow');
+					return false;
+				});
+				$(window).scroll(function() {
+					if ( $(this).scrollTop() > 1624){
+						$('#gotop').fadeIn();
+					} else {
+						$('#gotop').fadeOut();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

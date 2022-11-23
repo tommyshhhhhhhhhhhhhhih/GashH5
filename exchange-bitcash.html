@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>點數</title>
+		<link rel="icon" type="image/png" href="images/favicon.png">
+		<link href="css/jquery.fancybox.min.css" rel="stylesheet">
+		<link href="css/swiper-bundle.min.css" rel="stylesheet">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content exchange" id="app">
+				<div class="container">
+					<div class="header">
+						<a href="exchange.html" class="ic-back"></a>
+						<h3 class="middle"><img src="./images/exchange/img-bitcash.svg" alt=""></h3>
+						<!-- 轉跳至exchange-record.html BitCash Tab -->
+						<a href="exchange-record.html" class="ic-exchange">紀錄</a>
+					</div>
+				</div>
+				<div class="container">
+					<div class="gash-points">
+						<p class="title">GASH剩餘點數</p>
+						<p class="pay"><i class="ic-gash"><img src="./images/icon/ic-gash.svg" alt=""></i>$1,000</p> 
+					</div>
+					<h3>選擇你要購買的面額</h3>
+					<div class="points-list">
+						<div class="points">
+							<input type="radio" id="exchange1" value="" name="GashPoints">
+							<label class="change-box" for="exchange1">
+								<div class="pay">¥ 1000</div>
+								<div class="pay-points">
+									<i class="ic-gash"><img src="./images/icon/ic-gash.svg" alt=""></i>
+									326 點
+								</div>
+							</label>
+						</div>
+						<div class="points">
+							<input type="radio" id="exchange2" value="" name="GashPoints">
+							<label class="change-box" for="exchange2">
+								<div class="pay">¥ 3000</div>
+								<div class="pay-points">
+									<i class="ic-gash"><img src="./images/icon/ic-gash.svg" alt=""></i>
+									997 點
+								</div>
+							</label>
+						</div>
+						<div class="points">
+							<input type="radio" id="exchange3" value="" name="GashPoints">
+							<label class="change-box" for="exchange3">
+								<div class="pay">¥ 5000</div>
+								<div class="pay-points">
+									<i class="ic-gash"><img src="./images/icon/ic-gash.svg" alt=""></i>
+									1627 點
+								</div>
+							</label>
+						</div>
+						<div class="points">
+							<input type="radio" id="exchange4" value="" name="GashPoints">
+							<label class="change-box" for="exchange4">
+								<div class="pay">¥ 10000</div>
+								<div class="pay-points">
+									<i class="ic-gash"><img src="./images/icon/ic-gash.svg" alt=""></i>
+									3254 點
+								</div>
+							</label>
+						</div>
+					</div>
+                    <div class="checkbox">
+                        <input id="agreement" type="checkbox" v-model="agree">
+                        <label for="agreement">購買前請確認同意遵守<a href="" target="_blank">BitCash 使用條款</a></label>
+                    </div>
+					<!-- 當點選上方“面額”與勾選“購買同意遵守”時 才亮燈 -->
+					<button class="btn-primary block round-2" data-fancybox data-src="#exchange" :disabled="!agree">立即兌換</button>
+					<a href="https://bitcash.jp/docs/support/faq/lang/zh-TW/help" target="_blank" class="link-outer dark-blue">常見問題</a>
+				</div>
+				<!-- 安全鎖驗證失敗訊息 -->
+				<div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>安全鎖輸入錯誤，請重新輸入！</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div>
+				<!-- 輸入安全鎖密碼 popup -->
+				<div class="dialog exchange" id="exchange" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="Title mb-lg">請輸入安全鎖密碼</div>
+						<div class="password-eye other">
+							<input type="password" name="" maxlength="6" class="input mb-30" placeholder="請輸入安全鎖密碼" :type="inputType" v-model="newpsd" ref="pass1">
+							<button v-if="eye1" @click="showPassword($refs.pass1, 'eye1')"><img src="./images/icon/ic-password-open.svg" /></button>
+							<button v-else @click="showPassword($refs.pass1, 'eye1')"><img src="./images/icon/ic-password-hide.svg" /></button>
+						</div>
+						<div class="popup-btn">
+							<button class="btn-primary mt-none mb-xxs block" @click="exchange">
+								<div class="btn-loading" id="dot-loading" v-show="btnloading"></div>
+								<span v-show="!btnloading">確定</span>
+								<!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+							</button>
+							<button class="btn-primary block cancel" onclick="$.fancybox.close();">取消</button>
+						</div>
+					</div>
+				</div>
+				<!-- 兌換成功 popup-->
+				<div class="dialog exchange" id="exchange-success" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="Title mb-lg">兌換成功</div>
+						<p class="Subhead2-M gray">以下為你的兌換代碼，請妥善保管。</p>
+						<div class="number" :class="item.copied? 'active': '' " v-for="item,idx in recordList">
+							<input class="input w-7" type="text" :id="'code' + idx" readonly :value="item.code">
+							<button class="btn-copy" @click="copyPin(idx)">
+								<span class="animated fadeIn" v-show="item.copied">複製成功</span>
+								<img class="animated fadeIn" src="./images/icon/ic-copy-dark.svg" alt="" v-if="!item.copied">
+								<template v-else>
+									<img class="animated fadeIn" src="./images/icon/ic-copy-primary.svg" alt="">
+								</template>
+							</button>
+						</div>
+						<p class="caption3 ">相關紀錄可以於紀錄中查詢。</p>
+						<a href="exchange-record.html" class="btn-primary block" onclick="$.fancybox.close();">查看紀錄</a>
+						<a href="exchange-bitcash.html" class="btn-primary block dark" onclick="$.fancybox.close();">繼續儲值</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="./js/lottie.min.js"></script>
+		<script src="js/jquery.fancybox.min.js"></script>
+		<script src="js/swiper-bundle.min.js"></script>
+		<script src="js/custom.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			vm = new Vue({
+				el:'#app',
+				data() {
+					return {
+						btnloading: false,
+						show: true,
+						agree: false,
+						btnshow: false,    //v-show="false" 隱藏
+						newpsd: '',		  //v-model input 數據雙向綁定
+						verifypsd: '',
+						eye1: false,
+						inputType: 'password',
+						recordList: [
+							{
+								code: 'CP302329429438491',
+								copied: false,
+							},
+						],
+					}
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+                	});
+					setTimeout(() => {
+						document.getElementById("error-message").style.display="none";
+					}, 5000);
+				},
+				methods:{ 
+					showPassword(element, eye){ /*抓取當對應的input element和 當btn對應參數 */
+						console.log(element, eye)
+						element.type = element.type === 'password' ? 'text' : 'password';
+						if (eye === 'eye1'){
+							this.eye1 = !this.eye1;
+							return;
+						}						
+					},
+					copyPin: function(idx) {
+						let inputID = '#code' + idx ;
+						$(inputID).select();
+						document.execCommand('copy');
+						this.recordList[idx].copied = true
+						window.setTimeout(function(){
+							vm.recordList[idx].copied = false
+						}, 2000);
+					},
+					errorHide: function () {
+						this.show = false;
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							$.fancybox.close( $('#exchange'), {
+								touch: false
+							});
+							$.fancybox.open( $('#exchange-success'), {
+								touch: false
+							});
+							vm.btnloading = false;							
+						}, 3000);
+                	},
+				}
+			})
+		</script>
+	</body>
+</html>

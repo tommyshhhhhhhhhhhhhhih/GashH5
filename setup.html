@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>設定</title>
+		<link rel="icon" type="image/png" href="images/favicon.png">
+		<link href="css/animate.css" rel="stylesheet">
+		<link href="css/jquery.fancybox.min.css" rel="stylesheet">
+		<link href="css/swiper-bundle.min.css" rel="stylesheet">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content setup" id="app">
+				<div class="container">
+					<!-- 當有建立"安全鎖內容"時，請在 h3 標籤新增 class="certification" 空版則無 -->
+					<h3>安全鎖 <img src="./images/icon/ic-certification.svg" alt=""></h3>
+					<!-- 當安全鎖未設定時， 顯示 空版 DOM -->
+					<div class="nothing-board">
+						<img src="./images/icon/ic-security-lock.svg" alt="">
+						<p class="caption2-M">為了確保你的點數帳號安全，<br>請進行安全鎖設定。</p>
+						<a href="setup-verify.html" class="btn-primary small round-2">立即設定</a>
+					</div>
+					<!-- 當安全鎖未設定時，此區塊版位不會出現 -->
+					<div class="certification-list">
+						<ul>
+							<li>
+								<h4>安全鎖設定成功</h4>
+								<time class="time">2022.01.07 13:00</time>
+								<a href="setup-revise-password.html" class="revise"></a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- 遊戲綁定尚未綁定遊戲帳號 此區塊版位不會出現 -->
+				<div class="container">
+					<h3 class="link">遊戲綁定<a href="https://tw.gashpoint.com/games/article/4007" target="_blank">了解更多</a></h3>
+					<span class="remark">同時只能綁定 5 組遊戲帳號</span>
+					<div class="bind-list">
+						<ul>
+							<li>
+								<div class="data">
+									<h4>初心網路初心網路初心網路初心網路初心網路初心網路初心網路初心網路初心網路</h4>
+									<time class="time">2022.01.07 13:00</time>
+								</div>
+								<div class="tool">
+									<button class="revise" data-fancybox data-src="#bind-revise"></button>
+									<button class="del" data-fancybox data-src="#bind-del"></button>
+									<p class="number">C99382493912</p>
+								</div>
+							</li>
+							<li>
+								<div class="data">
+									<h4>初心網路</h4>
+									<time class="time">2022.01.07 13:00</time>
+								</div>
+								<div class="tool">
+									<button class="revise" data-fancybox data-src="#bind-revise"></button>
+									<button class="del" data-fancybox data-src="#bind-del"></button>
+									<p class="number">C99382493912</p>
+								</div>
+							<li>
+								<div class="data">
+									<h4>初心網路</h4>
+									<time class="time">2022.01.07 13:00</time>
+								</div>
+								<div class="tool">
+									<button class="revise" data-fancybox data-src="#bind-revise"></button>
+									<button class="del" data-fancybox data-src="#bind-del"></button>
+									<p class="number">C99382493912</p>
+								</div>
+							</li>
+							<li>
+								<div class="data">
+									<h4>初心網路</h4>
+									<time class="time">2022.01.07 13:00</time>
+								</div>
+								<div class="tool">
+									<button class="revise" data-fancybox data-src="#bind-revise"></button>
+									<button class="del" data-fancybox data-src="#bind-del"></button>
+									<p class="number">C99382493912</p>
+								</div>
+							</li>
+							<li>
+								<div class="data">
+									<h4>初心網路</h4>
+									<time class="time">2022.01.07 13:00</time>
+								</div>
+								<div class="tool">
+									<button class="revise" data-fancybox data-src="#bind-revise"></button>
+									<button class="del" data-fancybox data-src="#bind-del"></button>
+									<p class="number">C99382493912</p>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- 遊戲綁定：綁定“成功”訊息  -->
+				<div class="error-message" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-confirm.svg" alt=""></span>
+					<p>解除綁定成功</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div>
+				<!-- 遊戲綁定：綁定“失敗”訊息  -->
+				<!-- <div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>解除綁定失敗，請稍後再試</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div> -->
+				<!-- 遊戲綁定：”修改失敗“訊息  -->
+				<!-- <div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>修改遊戲綁定名稱失敗，請稍後再試</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div> -->
+				<!-- 遊戲綁定：修改 popup-->
+				<div class="dialog" id="bind-revise" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="Title mb-lg">修改名稱</div>
+						<p class="Subhead2-M">請輸入新的遊戲綁定名稱</p>
+						<input type="text" name="" class="input mb-30" >
+						<div class="popup-btn">
+							<button class="btn-primary mt-none mb-xxs block" @click="exchange" > 
+								<div class="btn-loading" id="dot-loading" v-show="btnloading"></div>
+								<span v-show="!btnloading">確定</span>
+								<!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+							</button>
+							<button class="btn-primary block cancel" onclick="$.fancybox.close();">取消</button>
+						</div>
+					</div>
+				</div>
+				<!-- 遊戲綁定：刪除 popup-->
+				<div class="dialog" id="bind-del" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="Title mb-lg">解除連結</div>
+						<p class="Subhead2-M t-c">你確定要解除<span class="title">初心網路</span>遊戲連結嗎？</p>
+						<img src="./images/icon/ic-planet.svg" alt="">
+						<p class="note">本週期限制解綁次數為2次</p>
+						<div class="popup-btn">
+							<button class="btn-primary mt-none mb-xxs block" @click="exchange2" > 
+								<div class="btn-loading" id="dot-loading2" v-show="btnloading"></div>
+								<span v-show="!btnloading">確定</span>
+								<!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+							</button>
+							<button class="btn-primary block cancel" onclick="$.fancybox.close();">取消</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="js/jquery.fancybox.min.js"></script>
+		<script src="js/swiper-bundle.min.js"></script>
+		<script src="js/custom.js"></script>
+		<script src="./js/lottie.min.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			var jQfn2 = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading2'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			vm = new Vue({
+				el:'#app',
+				data() {
+					return {
+						btnloading: false,
+						show: true,
+					}
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+						jQfn2()
+                	});
+					setTimeout(() => {
+						document.getElementById("error-message").style.display="none";
+					}, 5000);
+				},
+				methods:{ 
+					errorHide: function () {
+						this.show = false;
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							$.fancybox.close( $('#bind-revise'), {
+								touch: false
+							});
+							vm.btnloading = false;							
+						}, 3000);
+                	},
+					exchange2: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							$.fancybox.close( $('#bind-del'), {
+								touch: false
+							});
+							vm.btnloading = false;							
+						}, 3000);
+                	},
+				},
+			})
+		</script>
+	</body>
+</html>

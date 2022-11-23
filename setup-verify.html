@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>設定</title>
+		<link rel="icon" type="image/png" href="images/favicon.png">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content setup-verify" id="app">
+				<div class="container">
+					<h3>請輸入驗證碼</h3>
+					<p class="caption2-M">內含驗證碼的簡訊已發送至 : 093823xxx</p>
+					<input type="number" name="" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="6" class="input" placeholder="輸入驗證碼">
+                    <div class="flex-btn">
+                        <button class="btn-primary mt-none mb-xxs block" @click="exchange" > 
+                            <div class="btn-loading" id="dot-loading" v-show="btnloading"></div>
+							<span v-show="!btnloading">確定</span>
+                            <!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+                        </button>
+                    </div>
+					<p class="caption2-M reciprocal">重新寄送驗證碼 59s</p>
+					<!-- 時間倒數完 切換此區塊  -->
+					<a href="" class="caption2-M anew">重新寄送驗證碼</a>
+				</div>
+				<!-- 安全鎖輸入錯誤訊息  -->
+				<div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>輸入錯誤，請重新輸入</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div>
+			</div>
+    	</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="./js/lottie.min.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			vm = new Vue({
+				el:'#app',
+				data() {
+					return {
+						btnloading: false,
+						show: true,
+					}
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+                	});
+					setTimeout(() => {
+						document.getElementById("error-message").style.display="none";
+					}, 5000);
+				},
+				methods:{ 
+					errorHide: function () {
+						this.show = false;
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							document.location.href="setup-password.html";
+							vm.btnloading = false;							
+						}, 3000);
+                	},
+				}
+			})
+		</script>
+	</body>
+</html>

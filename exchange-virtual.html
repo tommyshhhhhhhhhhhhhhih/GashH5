@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>點數</title>
+		<link rel="icon" type="image/png" href="images/favicon.png">
+		<link href="css/jquery.fancybox.min.css" rel="stylesheet">
+		<link href="css/swiper-bundle.min.css" rel="stylesheet">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content exchange" id="app">
+				<div class="container">
+					<div class="header">
+						<a href="exchange.html" class="ic-back"></a>
+						<h3 class="middle">天堂M兌換</h3>
+						<!-- 轉跳至exchange-record.html 虛寶兌換 Tab -->
+						<a href="exchange-record.html" class="ic-exchange">紀錄</a>
+					</div>
+				</div>
+				<div class="container">
+					<div class="exchange-pic">
+						<img src="./images/exchange/exchange_p1.png" alt="">
+					</div>
+					<p class="exchange-txt">請輸入您獲得的天堂Ｍ虛寶序號兌換號碼，兌換完成扣，將立即取得天堂Ｍ虛寶序號。</p>
+					<input type="text" name="" class="input" placeholder="請輸入大寫字母和數字" style="color:gray" onfocus="this.value='';this.style.color='black'" onkeyup="this.value=this.value.replace(/[^A-Z0-9]/gi,'');this.value=this.value.toLocaleUpperCase();" >
+                    <div class="flex-btn">
+                        <button class="btn-primary mt-none mb-xxs block" @click="exchange"> 
+                            <div class="btn-loading" id="dot-loading" v-show="btnloading"></div>
+							<span v-show="!btnloading">確定</span>
+                            <!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+                        </button>
+                    </div>
+					<a href="https://tw.gashpoint.com/games/article/4011?utm_source=gashh5&utm_medium=gashh5_other&utm_campaign=Ticket_M&utm_content=Ticket_M_5134_RL" target="_blank" class="link-outer">查看注意事項和教學</a>
+					<a href="https://event.beanfun.com/lineagem/exchange/index.aspx" target="_blank" class="link-outer">前往天堂Ｍ兌換虛寶</a>
+				</div>
+				<!-- 序號兌換：失敗訊息  -->
+				<div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>兌換失敗，錯誤代碼：001920001</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div>
+				<!-- 序號兌換：序號不存在訊息  -->
+				<!-- <div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>此序號不存在，請重新輸入</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div> -->
+				<!-- 兌換成功 popup-->
+				<div class="dialog exchange" id="exchange" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="Title mb-lg">兌換成功</div>
+						<p class="Subhead2-M gray">以下為你的兌換代碼，請妥善保管。</p>
+						<div class="number" :class="item.copied? 'active': '' " v-for="item,idx in recordList">
+							<input class="input w-7" type="text" :id="'code' + idx" readonly :value="item.code">
+							<button class="btn-copy" @click="copyPin(idx)">
+								<span class="animated fadeIn" v-show="item.copied">複製成功</span>
+								<img class="animated fadeIn" src="./images/icon/ic-copy-dark.svg" alt="" v-if="!item.copied">
+								<template v-else>
+									<img class="animated fadeIn" src="./images/icon/ic-copy-primary.svg" alt="">
+								</template>
+							</button>
+						</div>
+						<p class="caption3 ">相關紀錄可以於紀錄中查詢。</p>
+						<a href="https://event.beanfun.com/lineagem/exchange/index.aspx" target="_blank" class="btn-primary block" onclick="$.fancybox.close();">前往天堂M兌換虛寶</a>
+						<a href="exchange-virtual.html" class="btn-primary block dark" onclick="$.fancybox.close();">繼續輸入序號</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="./js/lottie.min.js"></script>
+		<script src="js/jquery.fancybox.min.js"></script>
+		<script src="js/swiper-bundle.min.js"></script>
+		<script src="js/custom.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			var vm = new Vue({
+				el: '#app',
+				data() {
+					return {
+						btnloading: false,
+						show: true,
+						recordList: [
+							{
+								code: 'CP302329429438491',
+								copied: false,
+							},
+						],
+					}
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+                	});
+					setTimeout(() => {
+						document.getElementById("error-message").style.display="none";
+					}, 5000);
+				},
+				methods: {
+					copyPin: function(idx) {
+						let inputID = '#code' + idx ;
+						$(inputID).select();
+						document.execCommand('copy');
+						this.recordList[idx].copied = true
+						window.setTimeout(function(){
+							vm.recordList[idx].copied = false
+						}, 2000);
+					},
+					errorHide: function () {
+						this.show = false;
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							$.fancybox.open( $('#exchange'), {
+								touch: false
+							});
+							vm.btnloading = false;							
+						}, 3000);
+                	},
+				},
+			})
+		</script>
+	</body>
+</html>

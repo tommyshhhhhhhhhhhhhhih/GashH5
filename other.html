@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>設定</title>
+		<!-- <link rel="icon" type="image/png" href="img/favicon.png"> -->
+		<link href="css/jquery.fancybox.min.css" rel="stylesheet">
+		<link href="css/swiper-bundle.min.css" rel="stylesheet">
+		<link href="css/reset.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="anytix">
+			<div class="main-content setup" id="app">
+				<!-- 示意：其他入口來的 popup -->
+				<div class="container">
+					<div class="bind-list" style="padding-top: calc(5 * var(--font-size));">
+						<ul>
+							<li>
+								<div class="data">
+									<h4>初心網路</h4>
+									<time class="time">2022.01.07 13:00</time>
+								</div>
+								<div class="tool">
+									<button class="del" data-fancybox data-src="#bind-verify"></button>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- 安全鎖驗證失敗訊息  -->
+				<div class="error-message warning" id="error-message" v-show="show">
+					<span class="icon"><img src="./images/icon/ic-warning-s-seca.svg" alt=""></span>
+					<p>輸入錯誤，請重新輸入</p>
+					<span class="error-hide" @click="errorHide()"><img src="./images/icon/ic-close.svg" alt=""></span>
+				</div>
+				<!-- 驗證安全鎖密碼 popup-->
+				<div class="dialog" id="bind-verify" style="display: none;">
+					<div class="column ai-center py-md">
+						<div class="title other">驗證安全鎖密碼</div>
+						<p class="Subhead2-M other">請輸入你的安全鎖密碼<span class="remark">*密碼僅限 6 碼數字</span></p>
+						<div class="password-eye other">
+							<input type="password" name="" maxlength="6" class="input" placeholder="請輸入安全鎖密碼" :type="inputType" v-model="newpsd" ref="pass1">
+							<button v-if="eye1" @click="showPassword($refs.pass1, 'eye1')"><img src="./images/icon/ic-password-open.svg" /></button>
+							<button v-else @click="showPassword($refs.pass1, 'eye1')"><img src="./images/icon/ic-password-hide.svg" /></button>
+						</div>
+						<p class="warn other">*貼心叮嚀：您的點數將從你的帳戶扣除，請勿隨意聽從他人指示提供點數以防詐騙。</p>
+						<div class="flex-btn">
+							<button class="btn-primary mt-none mb-xxs block" @click="exchange" > 
+								<div class="btn-loading" id="dot-loading" v-show="btnloading"></div>
+								<span v-show="!btnloading">確定</span>
+								<!-- chrome 禁止直接讀取 local json，這邊要用 local server 才看的到-->
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="js/jquery.fancybox.min.js"></script>
+		<script src="js/swiper-bundle.min.js"></script>
+		<script src="js/custom.js"></script>
+		<script src="./js/lottie.min.js"></script>
+		<script>
+			var jQfn = function (){
+				var animation = bodymovin.loadAnimation({
+					container: document.getElementById('dot-loading'),
+					// chrome 禁止直接讀取 local json，這邊要用 local server 才看的到
+					path: './js/json/dot-loading-white.json',
+					renderer: 'svg',
+					loop: true,
+					autoplay: true,
+					name: "Demo Animation",
+				});
+			}
+			vm = new Vue({
+				el:'#app',
+				data() {
+					return {
+						btnloading: false,
+						show: true,
+						btnshow: false,    //v-show="false" 隱藏
+						newpsd: '',		  //v-model input 數據雙向綁定
+						verifypsd: '',
+						eye1: false,
+						inputType: 'password',
+					}
+				},
+				mounted: function () {
+					this.$nextTick(function () {
+						vm.prizeLoading = false
+						//- window.setTimeout(function(){
+						//-     vm.loading = false
+						//- }, vm.loadingTimer);
+						jQfn()
+                	});
+					setTimeout(() => {
+						document.getElementById("error-message").style.display="none";
+					}, 5000);
+				},
+				methods:{ 
+					//點擊圖標  密碼顯示隱藏 切換
+					showPassword(element, eye){ /*抓取當對應的input element和 當btn對應參數 */
+						console.log(element, eye)
+						// var me = this;
+						element.type = element.type === 'password' ? 'text' : 'password';
+						if (eye === 'eye1'){
+							this.eye1 = !this.eye1;
+							return;
+						}
+					},
+					errorHide: function () {
+						this.show = false;
+					},
+					exchange: function() {
+						this.btnloading = true;
+						window.setTimeout(function(){
+							document.location.href="#";
+							vm.btnloading = false;							
+						}, 3000);
+                	},
+				}
+			})
+		</script>
+	</body>
+</html>
